@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -69,15 +68,84 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+	
+}
+
+impl<T:PartialOrd> LinkedList<T> {
+    pub fn merge(mut list_a:LinkedList<T>,mut list_b:LinkedList<T>) -> Self
 	{
 		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        unsafe{
+            let mut list_c = Self::new();
+            list_c.length = list_a.length + list_b.length;
+
+            while let (Some(a_ptr),Some(b_ptr)) = (list_a.start,list_b.start) {
+                let new_ptr = if (*a_ptr.as_ptr()).val < (*b_ptr.as_ptr()).val {
+                    list_a.start = (*a_ptr.as_ptr()).next;
+                    a_ptr
+                } else {
+                    list_b.start = (*b_ptr.as_ptr()).next;
+                    b_ptr
+                };
+                if let Some(end_ptr) = list_c.end {
+                    (*end_ptr.as_ptr()).next = Some(new_ptr);
+                } else {
+                    list_c.start = Some(new_ptr);
+                }
+                list_c.end=Some(new_ptr);
+            }
+            
+            if let Some(new_ptr) = list_a.start {
+                if let Some(end_ptr) = list_c.end {
+                    (*end_ptr.as_ptr()).next = Some(new_ptr);
+                } else {
+                    list_c.start = Some(new_ptr);
+                }
+                list_c.end=list_a.end;
+            } else if let Some(new_ptr) = list_b.start {
+                if let Some(end_ptr) = list_c.end {
+                    (*end_ptr.as_ptr()).next = Some(new_ptr);
+                } else {
+                    list_c.start = Some(new_ptr);
+                }
+                list_c.end=list_b.end;
+            } else {
+
+            }
+            // while let Some(next) = Some(
+            //     match (list_a.start, list_b.start) {
+            //         (Some(a),Some(b)) => {
+            //             if a.as_ref().val < b.as_ref().val {
+            //                 list_a.start = a.as_ref().next;
+            //                 Some(a)
+            //             } else {
+            //                 list_b.start = b.as_ref().next;
+            //                 Some(b)
+            //             }
+            //         },
+            //         (Some(a),None) => {
+            //             list_a.start = a.as_ref().next;
+            //             Some(a)
+            //         },
+            //         (None,Some(b)) => {
+            //             list_b.start = b.as_ref().next;
+            //             Some(b)
+            //         },
+            //         _ => None,
+            //     }
+            // ) {
+            //     match list_c.end {
+            //         None => list_c.start = next,
+            //         Some(mut end_ptr) => end_ptr.as_mut().next = next,
+            //     }
+            //     list_c.end = next;
+            // }
+            // if let Some(mut end) = list_c.end {
+            //     end.as_mut().next = None;
+            // }
+            list_c
         }
-	}
+    }
 }
 
 impl<T> Display for LinkedList<T>
